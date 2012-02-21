@@ -18,6 +18,7 @@ import Yesod.Logger (Logger, logBS, toProduction)
 import Network.Wai.Middleware.RequestLogger (logCallback)
 #endif
 import Network.Wai (Application)
+import qualified AppState as AS
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -34,7 +35,8 @@ mkYesodDispatch "App" resourcesApp
 getApplication :: AppConfig DefaultEnv Extra -> Logger -> IO Application
 getApplication conf logger = do
     s <- staticSite
-    let foundation = App conf setLogger s
+    acid <- AS.openFrom "_appstate"
+    let foundation = App conf setLogger s acid
     app <- toWaiAppPlain foundation
     return $ logWare app
   where

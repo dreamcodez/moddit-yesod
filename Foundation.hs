@@ -22,15 +22,18 @@ import Settings (Extra (..), widgetFile)
 import Control.Monad.IO.Class (liftIO)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
+import Data.Acid (AcidState)
+import AppState (Database)
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings  :: AppConfig DefaultEnv Extra
-    , getLogger :: Logger
-    , getStatic :: Static -- ^ Settings for static file serving.
+    { settings    :: AppConfig DefaultEnv Extra
+    , getLogger   :: Logger
+    , getStatic   :: Static -- ^ Settings for static file serving.
+    , getDatabase :: AcidState Database
     }
 
 -- Set up i18n messages. See the message folder.

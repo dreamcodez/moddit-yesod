@@ -1,6 +1,9 @@
 module Handler.Root where
 
 import Import
+import Data.Acid
+import AppState
+
 
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
@@ -11,7 +14,13 @@ import Import
 -- inclined, or create a single monolithic file.
 getRootR :: Handler RepHtml
 getRootR = do
-    defaultLayout $ do
-        h2id <- lift newIdent
-        setTitle "moddit homepage"
-        $(widgetFile "homepage")
+  db <- getDatabase <$> getYesod
+  
+  defaultLayout $ do
+    -- track site hits
+    hits <- liftIO $ query db ReadHits
+    _ <- liftIO $ update db IncrementHits
+
+    h2id <- lift newIdent
+    setTitle "moddit homepage"
+    $(widgetFile "homepage")

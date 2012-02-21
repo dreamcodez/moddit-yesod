@@ -31,6 +31,7 @@ library
                      Settings
                      Settings.StaticFiles
                      Handler.Root
+                     AppState
 
     ghc-options:   -Wall -threaded -O0
     cpp-options:   -DDEVELOPMENT
@@ -65,7 +66,7 @@ executable         moddit
                 MultiParamTypeClasses
                 TypeFamilies
 
-    build-depends: base                          >= 4          && < 5
+    build-depends: base
                  , yesod-core                    >= 0.10       && < 0.11
                  , yesod-static                  >= 0.10       && < 0.11
                  , yesod-default                 >= 0.6        && < 0.7
@@ -81,4 +82,6 @@ executable         moddit
                  , monad-control                 >= 0.3        && < 0.4
                  , yaml                          >= 0.5        && < 0.6
                  , acid-state
+                 , safecopy
+                 , mtl
 
