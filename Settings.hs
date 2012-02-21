@@ -39,7 +39,9 @@ staticDir = "static"
 --
 -- To see how this value is used, see urlRenderOverride in moddit.hs
 staticRoot :: AppConfig DefaultEnv a ->  Text
-staticRoot conf = [st|#{appRoot conf}/static|]
+--FIXME: should be dynamic at app launch
+--staticRoot conf = [st|#{appRoot conf}/static|]
+staticRoot conf = "/static"
 
 widgetFile :: String -> Q Exp
 #if DEVELOPMENT

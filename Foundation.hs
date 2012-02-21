@@ -24,6 +24,7 @@ import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import Data.Acid (AcidState)
 import AppState (Database)
+--import Data.String ()
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -98,5 +99,3 @@ instance Yesod App where
     -- users receiving stale content.
     addStaticContent = addStaticContentExternal (const $ Left ()) base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
-    -- Enable Javascript async loading
-    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
