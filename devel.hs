@@ -6,18 +6,13 @@ import Control.Concurrent (forkIO)
 import System.Directory (doesFileExist, removeFile)
 import System.Exit (exitSuccess)
 import Control.Concurrent (threadDelay)
-import System.Environment (getEnv)
-
-getEnvWithDefault v d = getEnv v `catch` const (return d)
 
 main :: IO ()
 main = do
     putStrLn "Starting devel application"
     (port, app) <- getApplicationDev
-    portString <- getEnvWithDefault "MODDIT_PORT" $ show port
-    let port' = read portString :: Int
     forkIO $ runSettings defaultSettings
-        { settingsPort = port'
+        { settingsPort = port
         } app
     loop
 

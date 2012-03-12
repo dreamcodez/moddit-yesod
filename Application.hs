@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( getApplication
@@ -19,6 +20,7 @@ import Network.Wai.Middleware.RequestLogger (logCallback)
 #endif
 import Network.Wai (Application)
 import qualified AppState as AS
+import System.Environment (getEnv)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -49,11 +51,16 @@ getApplication conf logger = do
 #endif
 
 -- for yesod devel
+-- lets start customizing this codebase, to set our code apart, we start indenting 2 lines ; )
 getApplicationDev :: IO (Int, Application)
-getApplicationDev =
-    defaultDevelApp loader getApplication
-  where
-    loader = loadConfig (configSettings Development)
-        { csParseExtra = parseExtra
-        }
+getApplicationDev = do
+  config <- loadConfig(configSettings Development){csParseExtra = parseExtra}
+  portStr <- getEnvWithDefault "MODDIT_PORT" (show $ appPort config)
+
+  -- assign new env-influenced vals
+  let config' = config{appPort = read portStr}
+
+  defaultDevelApp (return config') getApplication
+
+  where getEnvWithDefault v d = getEnv v `catch` const (return d)
 
