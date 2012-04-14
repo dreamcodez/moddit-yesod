@@ -1,2 +1,5 @@
+*.hi
+*.o
 dist/
 static/tmp/
+_appstate/
