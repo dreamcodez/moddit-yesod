@@ -3,6 +3,8 @@ module Handler.Root where
 import Import
 import Data.Acid
 import AppState
+--import Forms
+--import Control.Monad
 
 
 -- This is a handler function for the GET request method on the RootR
@@ -24,3 +26,30 @@ getRootR = do
     h2id <- lift newIdent
     setTitle "moddit homepage"
     $(widgetFile "homepage")
+
+-- new implementation (WIP)
+{-
+getRootR :: Handler RepHtml
+getRootR = do
+  ((_, widget), enctype) <- generateFormPost addNewsItemForm
+  defaultLayout [whamlet|
+<form method=post action=@{RootR} enctype=#{enctype}>
+  ^{widget}
+  <input type=submit>
+|]
+
+postRootR :: Handler RepHtml
+postRootR = do
+  ((result, widget), enctype) <- runFormPost addNewsItemForm
+  case result of
+    newsItem ->
+      defaultLayout [whamlet|<p>#{show newsItem}|]
+    _ ->
+      defaultLayout [whamlet|
+<p>Invalid input, let's try again.
+<form method=post action=@{RootR} enctype=#{enctype}>
+  ^{widget}
+  <input type=submit>
+|]
+
+-}

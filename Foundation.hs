@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, OverloadedStrings, TemplateHaskell, TypeFamilies #-} 
 module Foundation
     ( App (..)
     , Route (..)
@@ -24,7 +25,7 @@ import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import Data.Acid (AcidState)
 import AppState (Database)
---import Data.String ()
+import Yesod.Form
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -98,4 +99,9 @@ instance Yesod App where
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
     addStaticContent = addStaticContentExternal (const $ Left ()) base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
+
+-- Tells our application to use the standard English messages.
+-- If you want i18n, then you can supply a translating function instead.
+instance RenderMessage t FormMessage where
+    renderMessage _ _ = defaultFormMessage
 

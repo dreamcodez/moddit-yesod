@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP, TemplateHaskell #-}
 module Settings.StaticFiles where
 
 import Prelude (IO)
