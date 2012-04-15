@@ -23,9 +23,14 @@ import Settings (Extra (..), widgetFile)
 import Control.Monad.IO.Class (liftIO)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
+import Control.Applicative ((<$>))
 import Data.Acid (AcidState)
-import AppState (Database)
+import AppState
 import Yesod.Form
+import Yesod.Auth
+import Yesod.Auth.Dummy
+import Yesod.Auth.Email
+import Data.Text
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -109,4 +114,17 @@ instance Yesod App where
 -- If you want i18n, then you can supply a translating function instead.
 instance RenderMessage t FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+instance YesodAuth App where
+    type AuthId App = Text
+
+    loginDest _ = RootR
+    logoutDest _ = RootR
+    --authPlugins _ = [authEmail]
+    authPlugins _ = [authDummy]
+
+    -- primary key is == to email address
+    getAuthId = return . Just . credsIdent
+
+    authHttpManager = error "n/a"
 

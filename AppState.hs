@@ -6,7 +6,9 @@ module AppState
   , ReadNews(..)
   , IncrementHits(..)
   , ReadHits(..)
+  , LookupUser(..)
   , Database
+  , module Data.Acid
   )
 where
 
@@ -18,25 +20,9 @@ import Control.Applicative  ( (<$>) )
 import Prelude
 import Data.Typeable
 import Data.Text (Text)
+import Data.Map as M
 
-data NewsItem = NewsItem
-  { title :: Text
-  , url   :: Text
-  }
-  deriving (Show, Typeable)
-
-$(deriveSafeCopy 0 'base ''NewsItem)
-
---instance SafeCopy NewsItem where
---  putCopy = contain . safePut
--- getCopy = contain $ safeGet
-
-data Database = Database
-  { hits :: Int
-  , news :: [NewsItem]
-  }
-
-$(deriveSafeCopy 0 'base ''Database)
+import AppTypes
 
 addNews :: NewsItem -> Update Database ()
 addNews n =
@@ -54,9 +40,12 @@ incrementHits =
 readHits :: Query Database Int
 readHits = hits <$> ask
 
-$(makeAcidic ''Database ['addNews, 'readNews, 'incrementHits, 'readHits])
+lookupUser :: Text -> Query Database (Maybe User)
+lookupUser email = M.lookup email <$> users <$> ask
+
+$(makeAcidic ''Database ['addNews, 'readNews, 'incrementHits, 'readHits, 'lookupUser])
 
 openFrom :: String -> IO (AcidState Database)
 openFrom path =
-  openLocalStateFrom path (Database 0 [])
+  openLocalStateFrom path (Database 0 [] empty)
 

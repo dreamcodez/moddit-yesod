@@ -1,6 +1,7 @@
 module Handler.Root where
 
 import Yesod hiding (update)
+import Yesod.Auth
 import Import
 import Data.Acid
 import AppState
@@ -36,9 +37,17 @@ getRootR = do
   db <- getDatabase <$> getYesod
   hits <- liftIO $ query db ReadHits
   _ <- liftIO $ update db IncrementHits
+  maid <- maybeAuthId
 
   (widget, enctype) <- generateFormPost addNewsItemForm
   defaultLayout [whamlet|
+    <p>Your current auth ID: #{show maid}
+    $maybe _ <- maid
+      <p>
+        <a href=@{AuthR LogoutR}>Logout
+    $nothing
+      <p>
+        <a href=@{AuthR LoginR}>Go to the login page
     <form class="form-horizontal" method=post action=@{NewsR} enctype=#{enctype}>
       ^{widget}
       <input type=submit class="btn btn-primary">
