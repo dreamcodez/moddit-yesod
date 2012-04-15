@@ -21,6 +21,7 @@ import Network.Wai.Middleware.RequestLogger (logCallback)
 import Network.Wai (Application)
 import qualified AppState as AS
 import System.Environment (getEnv)
+import Yesod.Auth
 
 -- Import all relevant handler modules here.
 import Handler.Root

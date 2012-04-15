@@ -32,6 +32,7 @@ library
                      Settings.StaticFiles
                      Handler.Root
                      AppState
+                     AppTypes
                      Forms
 
     ghc-options:   -Wall -threaded -O0
@@ -44,6 +45,7 @@ library
                 MultiParamTypeClasses
                 TypeFamilies
                 OverloadedStrings
+                DeriveDataTypeable
 
 executable         moddit
     if flag(library-only)
@@ -58,7 +60,9 @@ executable         moddit
     main-is:       main.hs
 
     build-depends: base
+                 , containers
                  , yesod
+                 , yesod-auth
                  , yesod-core
                  , yesod-static
                  , yesod-default
@@ -79,12 +83,4 @@ executable         moddit
                  , safecopy
                  , mtl
                  , blaze-html
-
-    extensions: TemplateHaskell
-                QuasiQuotes
-                NoImplicitPrelude
-                CPP
-                MultiParamTypeClasses
-                TypeFamilies
-                OverloadedStrings
 
