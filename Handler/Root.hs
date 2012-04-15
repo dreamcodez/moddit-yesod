@@ -40,19 +40,9 @@ getRootR = do
   maid <- maybeAuthId
 
   (widget, enctype) <- generateFormPost addNewsItemForm
-  defaultLayout [whamlet|
-    <p>Your current auth ID: #{show maid}
-    $maybe _ <- maid
-      <p>
-        <a href=@{AuthR LogoutR}>Logout
-    $nothing
-      <p>
-        <a href=@{AuthR LoginR}>Go to the login page
-    <form class="form-horizontal" method=post action=@{NewsR} enctype=#{enctype}>
-      ^{widget}
-      <input type=submit class="btn btn-primary">
-    <p>Homepage hits: #{hits}
-|]
+  defaultLayout $ do
+    h2id <- lift newIdent
+    $(widgetFile "homepage")
 
 postNewsR :: Handler RepHtml
 postNewsR = do
