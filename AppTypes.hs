@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveDataTypeable, TemplateHaskell #-}
 module AppTypes where
 
 import Data.Acid
