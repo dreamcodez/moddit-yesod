@@ -1,7 +1,7 @@
 Default: &defaults
-  host: "localhost"
   port: 3000
   copyright: Insert copyright statement here
+  approot: ""
   #analytics: UA-YOURCODE
 
 Development:
@@ -14,5 +14,5 @@ Staging:
   <<: *defaults
 
 Production:
-  approot: "http://www.example.com"
   <<: *defaults
+

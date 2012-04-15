@@ -1,12 +1,14 @@
 module Handler.Root where
 
+import Yesod hiding (update)
 import Import
 import Data.Acid
 import AppState
---import Forms
+import Forms
 --import Control.Monad
 
 
+{-
 -- This is a handler function for the GET request method on the RootR
 -- resource pattern. All of your resource patterns are defined in
 -- config/routes
@@ -26,25 +28,32 @@ getRootR = do
     h2id <- lift newIdent
     setTitle "moddit homepage"
     $(widgetFile "homepage")
+-}
 
 -- new implementation (WIP)
-{-
 getRootR :: Handler RepHtml
 getRootR = do
-  ((_, widget), enctype) <- generateFormPost addNewsItemForm
+  db <- getDatabase <$> getYesod
+  hits <- liftIO $ query db ReadHits
+  _ <- liftIO $ update db IncrementHits
+
+  (widget, enctype) <- generateFormPost addNewsItemForm
   defaultLayout [whamlet|
-<form method=post action=@{RootR} enctype=#{enctype}>
-  ^{widget}
-  <input type=submit>
+    <form method=post action=@{NewsR} enctype=#{enctype}>
+      ^{widget}
+      <input type=submit>
+    <p>Homepage hits: #{hits}
 |]
 
-postRootR :: Handler RepHtml
-postRootR = do
+postNewsR :: Handler RepHtml
+postNewsR = do
   ((result, widget), enctype) <- runFormPost addNewsItemForm
   case result of
-    newsItem ->
-      defaultLayout [whamlet|<p>#{show newsItem}|]
-    _ ->
+    (FormSuccess newsItem) -> do
+      db <- getDatabase <$> getYesod
+      _ <- liftIO $ update db (AddNews newsItem)
+      defaultLayout [whamlet|<strong>success|]
+    _ -> do
       defaultLayout [whamlet|
 <p>Invalid input, let's try again.
 <form method=post action=@{RootR} enctype=#{enctype}>
@@ -52,4 +61,16 @@ postRootR = do
   <input type=submit>
 |]
 
--}
+getNewsR :: Handler RepHtml
+getNewsR = do
+  db <- getDatabase <$> getYesod
+  news <- liftIO $ query db (ReadNews 10)
+  hits <- liftIO $ query db ReadHits
+  defaultLayout [whamlet|
+    $forall n <- news
+      <p>
+        <a href=#{url n}>#{title n}
+
+    <p>main page hits: #{hits}
+  |]
+

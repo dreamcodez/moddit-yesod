@@ -1,21 +1,34 @@
-{-# LANGUAGE MultiParamTypeClasses, OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell, MultiParamTypeClasses,
+    OverloadedStrings, TypeFamilies #-}
 module Forms where
 
-import Import
+import Control.Applicative ((<$>), (<*>), pure)
+import Prelude
 import Yesod
 import Yesod.Form
-import Text.Blaze.Internal
+import Foundation
+--import Yesod.Form.Jquery
+--import Data.Text
+--import Data.String
 
-data NewsItem = NewsItem
-  { title :: Text
-  , url   :: Text
-  }
+import AppState
 
---addNewsItemForm :: Text.Blaze.Internal.Html -> 
 addNewsItemForm =
-  aFormToForm aform
-  where aform =
-          NewsItem
-            <$> areq textField "Title" Nothing
-            <*> areq textField "URL" Nothing
+  renderDivs $
+    NewsItem
+      <$> areq textField "Title" Nothing
+      <*> areq textField "URL" Nothing
+
+{-
+--personForm :: Html -> MForm Synopsis Synopsis (FormResult Person, Widget)
+personForm = renderDivs $ Person
+    <$> areq textField "Name" Nothing
+    <*> areq (jqueryDayField def
+        { jdsChangeYear = True -- give a year dropdown
+        , jdsYearRange = "1900:-5" -- 1900 till five years ago
+        }) "Birthday" Nothing
+    <*> aopt textField "Favorite color" Nothing
+    <*> areq emailField "Email address" Nothing
+    <*> aopt urlField "Website" Nothing
+-}
 

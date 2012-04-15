@@ -1,8 +1,9 @@
 {-# LANGUAGE TypeFamilies, DeriveDataTypeable, TemplateHaskell #-}
 module AppState
   ( openFrom
-  , CreateMessage(..)
-  , ReadMessages(..)
+  , NewsItem(..)
+  , AddNews(..)
+  , ReadNews(..)
   , IncrementHits(..)
   , ReadHits(..)
   , Database
@@ -15,21 +16,35 @@ import Control.Monad.State  ( get, put )
 import Control.Monad.Reader ( ask )
 import Control.Applicative  ( (<$>) )
 import Prelude
+import Data.Typeable
+import Data.Text (Text)
+
+data NewsItem = NewsItem
+  { title :: Text
+  , url   :: Text
+  }
+  deriving (Show, Typeable)
+
+$(deriveSafeCopy 0 'base ''NewsItem)
+
+--instance SafeCopy NewsItem where
+--  putCopy = contain . safePut
+-- getCopy = contain $ safeGet
 
 data Database = Database
-  { hits     :: Int
-  , messages :: [String]
+  { hits :: Int
+  , news :: [NewsItem]
   }
 
 $(deriveSafeCopy 0 'base ''Database)
 
-createMessage :: String -> Update Database ()
-createMessage msg =
+addNews :: NewsItem -> Update Database ()
+addNews n =
   do db <- get
-     put db{messages = msg:(messages db)}
+     put db{news = n:(news db)}
 
-readMessages :: Int -> Query Database [String]
-readMessages limit = take limit <$> messages <$> ask
+readNews :: Int -> Query Database [NewsItem]
+readNews limit = take limit <$> news <$> ask
 
 incrementHits :: Update Database ()
 incrementHits =
@@ -39,7 +54,7 @@ incrementHits =
 readHits :: Query Database Int
 readHits = hits <$> ask
 
-$(makeAcidic ''Database ['createMessage, 'readMessages, 'incrementHits, 'readHits])
+$(makeAcidic ''Database ['addNews, 'readNews, 'incrementHits, 'readHits])
 
 openFrom :: String -> IO (AcidState Database)
 openFrom path =

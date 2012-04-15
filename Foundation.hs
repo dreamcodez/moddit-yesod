@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, OverloadedStrings, TemplateHaskell, TypeFamilies #-} 
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TemplateHaskell, TypeFamilies #-} 
 module Foundation
     ( App (..)
     , Route (..)
@@ -66,9 +66,12 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
     approot = ApprootMaster $ appRoot . settings
-
-    -- Place the session key file in the config folder
-    encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
+    
+    -- Store session data on the client in encrypted cookies,
+    -- default session idle timeout is 120 minutes
+    makeSessionBackend _ = do
+        key <- getKey "config/client_session_key.aes"
+        return . Just $ clientSessionBackend key 120
 
     defaultLayout widget = do
         master <- getYesod
