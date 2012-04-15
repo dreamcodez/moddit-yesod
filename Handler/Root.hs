@@ -61,7 +61,6 @@ postNewsR = do
     (FormSuccess newsItem) -> do
       db <- getDatabase <$> getYesod
       _ <- liftIO $ update db (AddNews newsItem)
-      -- defaultLayout [whamlet|<strong>success|]
       redirect NewsR
     _ -> do
       defaultLayout [whamlet|
