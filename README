@@ -1,0 +1,20 @@
+Basics
+======
+
+Installing dependencies
+
+  cabal install
+
+Running in development mode
+
+  yesod devel
+
+
+Troubleshooting
+===============
+
+If it can't find static assets:
+
+  touch Settings/StaticFiles.hs
+
+
