@@ -85,6 +85,8 @@ instance Yesod App where
 
         pc <- widgetToPageContent $ do
             $(widgetFile "normalize")
+            addStylesheet $ StaticR bootstrap_css_bootstrap_min_css
+            addStylesheet $ StaticR css_main_css
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 

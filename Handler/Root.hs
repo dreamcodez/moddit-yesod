@@ -39,9 +39,9 @@ getRootR = do
 
   (widget, enctype) <- generateFormPost addNewsItemForm
   defaultLayout [whamlet|
-    <form method=post action=@{NewsR} enctype=#{enctype}>
+    <form class="form-horizontal" method=post action=@{NewsR} enctype=#{enctype}>
       ^{widget}
-      <input type=submit>
+      <input type=submit class="btn btn-primary">
     <p>Homepage hits: #{hits}
 |]
 

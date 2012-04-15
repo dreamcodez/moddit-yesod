@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# http://bootswatch.com/#gallery
+#   $('ul.dropdown-menu:first li a').each(function(i,x){ console.log( $(this).attr('href').replace(/^\//, '') ) })
+
+for i in amelia cerulean cyborg journal readable simplex slate spacelab spruce superhero united ; do
+  wget "http://bootswatch.com/$i/bootstrap.min.css" && mv bootstrap.min.css $i.min.css
+done
+
