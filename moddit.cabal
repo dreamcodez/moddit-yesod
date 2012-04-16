@@ -61,6 +61,7 @@ executable         moddit
 
     build-depends: base
                  , containers
+                 , ixset
                  , yesod
                  , yesod-auth
                  , yesod-core
@@ -84,4 +85,13 @@ executable         moddit
                  , safecopy
                  , mtl
                  , blaze-html
+
+    extensions: TemplateHaskell
+                QuasiQuotes
+                NoImplicitPrelude
+                CPP
+                MultiParamTypeClasses
+                TypeFamilies
+                OverloadedStrings
+                DeriveDataTypeable
 
