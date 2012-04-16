@@ -13,14 +13,13 @@ module AppState
 where
 
 import Data.Acid
-import Data.SafeCopy
 import Control.Monad.State  ( get, put )
 import Control.Monad.Reader ( ask )
 import Control.Applicative  ( (<$>) )
 import Prelude
 import Data.Typeable
 import Data.Text (Text)
-import Data.Map as M
+import Data.IxSet
 
 import AppTypes
 
@@ -41,7 +40,10 @@ readHits :: Query Database Int
 readHits = hits <$> ask
 
 lookupUser :: Text -> Query Database (Maybe User)
-lookupUser email = M.lookup email <$> users <$> ask
+lookupUser e = do
+  Database{users} <- ask
+  return . getOne $
+    users @= Email e
 
 $(makeAcidic ''Database ['addNews, 'readNews, 'incrementHits, 'readHits, 'lookupUser])
 

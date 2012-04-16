@@ -11,16 +11,31 @@ import Data.Typeable
 import Data.Text (Text)
 import Data.Map
 import Data.Time.Clock (UTCTime)
+import Data.IxSet
+import Data.Data
+
+-- Simple Types (for querying with IxSet)
+data Email
+  = Email Text
+  deriving (Data, Eq, Ord, Show, Typeable)
+$(deriveSafeCopy 0 'base ''Email)
+
+-- End Query Types
 
 data User = User
-  { email    :: Text
-  , pass     :: Maybe Text
+  { email    :: Email
+  , password :: Maybe Text
   , verkey   :: Maybe Text
   , verified :: Bool
   }
-  deriving (Show, Typeable)
+  deriving (Data, Eq, Ord, Show, Typeable)
 
 $(deriveSafeCopy 0 'base ''User)
+
+instance Indexable User where
+   empty = ixSet 
+             [ ixFun (\u -> [email u])
+             ]
 
 data NewsItem = NewsItem
   { title   :: Text
@@ -35,7 +50,7 @@ $(deriveSafeCopy 0 'base ''NewsItem)
 data Database = Database
   { hits  :: Int
   , news  :: [NewsItem]
-  , users :: Map Text User
+  , users :: IxSet User
   }
   deriving (Show, Typeable)
 

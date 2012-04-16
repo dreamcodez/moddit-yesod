@@ -33,6 +33,8 @@ getRootR = do
     $(widgetFile "homepage")
 -}
 
+fakeuser = User (Email "beppu@nowhere.com") Nothing Nothing False
+
 -- new implementation (WIP)
 getRootR :: Handler RepHtml
 getRootR = do
@@ -41,9 +43,8 @@ getRootR = do
   _ <- liftIO $ update db IncrementHits
   maid <- maybeAuthId
   now <- liftIO getCurrentTime
-  let user = User "beppu@nowhere.com" Nothing Nothing False
 
-  (widget, enctype) <- generateFormPost (addNewsItemForm now user)
+  (widget, enctype) <- generateFormPost (addNewsItemForm now fakeuser)
   defaultLayout $ do
     h2id <- lift newIdent
     $(widgetFile "homepage")
@@ -51,8 +52,7 @@ getRootR = do
 postNewsR :: Handler RepHtml
 postNewsR = do
   now <- liftIO getCurrentTime
-  let user = User "beppu@nowhere.com" Nothing Nothing False
-  ((result, widget), enctype) <- runFormPost (addNewsItemForm now user)
+  ((result, widget), enctype) <- runFormPost (addNewsItemForm now fakeuser)
   case result of
     (FormSuccess newsItem) -> do
       db <- getDatabase <$> getYesod
@@ -74,7 +74,7 @@ getNewsR = do
   defaultLayout [whamlet|
     $forall n <- news
       <p>
-        <a href=#{url n}>#{title n} by #{email $ user n} at #{show $ created n}
+        <a href=#{url n}>#{title n} by #{show $ email $ user n} at #{show $ created n}
 
     <p>main page hits: #{hits}
   |]
