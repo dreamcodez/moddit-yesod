@@ -6,7 +6,9 @@ import Import
 import Data.Acid
 import AppState
 import Forms
+import Data.Time.Clock (getCurrentTime)
 --import Control.Monad
+import AppTypes
 
 
 {-
@@ -38,15 +40,19 @@ getRootR = do
   hits <- liftIO $ query db ReadHits
   _ <- liftIO $ update db IncrementHits
   maid <- maybeAuthId
+  now <- liftIO getCurrentTime
+  let user = User "beppu@nowhere.com" Nothing Nothing False
 
-  (widget, enctype) <- generateFormPost addNewsItemForm
+  (widget, enctype) <- generateFormPost (addNewsItemForm now user)
   defaultLayout $ do
     h2id <- lift newIdent
     $(widgetFile "homepage")
 
 postNewsR :: Handler RepHtml
 postNewsR = do
-  ((result, widget), enctype) <- runFormPost addNewsItemForm
+  now <- liftIO getCurrentTime
+  let user = User "beppu@nowhere.com" Nothing Nothing False
+  ((result, widget), enctype) <- runFormPost (addNewsItemForm now user)
   case result of
     (FormSuccess newsItem) -> do
       db <- getDatabase <$> getYesod
@@ -68,7 +74,7 @@ getNewsR = do
   defaultLayout [whamlet|
     $forall n <- news
       <p>
-        <a href=#{url n}>#{title n}
+        <a href=#{url n}>#{title n} by #{email $ user n} at #{show $ created n}
 
     <p>main page hits: #{hits}
   |]

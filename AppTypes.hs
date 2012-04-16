@@ -10,14 +10,7 @@ import Prelude
 import Data.Typeable
 import Data.Text (Text)
 import Data.Map
-
-data NewsItem = NewsItem
-  { title :: Text
-  , url   :: Text
-  }
-  deriving (Show, Typeable)
-
-$(deriveSafeCopy 0 'base ''NewsItem)
+import Data.Time.Clock (UTCTime)
 
 data User = User
   { email    :: Text
@@ -28,6 +21,16 @@ data User = User
   deriving (Show, Typeable)
 
 $(deriveSafeCopy 0 'base ''User)
+
+data NewsItem = NewsItem
+  { title   :: Text
+  , url     :: Text
+  , created :: UTCTime
+  , user    :: User 
+  }
+  deriving (Show, Typeable)
+
+$(deriveSafeCopy 0 'base ''NewsItem)
 
 data Database = Database
   { hits  :: Int

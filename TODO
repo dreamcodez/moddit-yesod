@@ -1,0 +1,20 @@
+- click tracking for posts
+- setup/use ixset for more generalized in-memory querying
+- auth system working
+- auth activation system working
+- facebook, twitter, google / use yesod-auth to delegate logging in to these sites
+- basic ui mockup for news page including 'controversial and new posts'
+- new user signup
+- see each persons moderation feed (similar in spirit twitter feed)
+- allow people to 'follow' other moderators feeds 
+- moderator karma / slant detection or trending
+- the news items that a user sees is a result of the intersection or union of all the articles which made it through your panel of moderators
+- allow people to choose whether moderators trump each other in their feed or whether 
+- intersection mode means you want the maximum cruft filtered from your news feed
+- union mode means that you want moderators to actually trump each other (i.e. if one moderator removes an article, another one can not remove it and it ends up on your feed)
+- upvote downvote system w/ proprietary RealRank (tm) or some other clever pet name
+- simple ad system w/ upvoting and downvoting / pricing up in air but should be fair / fun easy, needs to track clicks
+- user bragging rights system kind of like twitter which shows how many people trust your opinion, perhaps magnified if you are the only person someone trusts, for instance
+- the more moderators in each users panel, the less 'moderator-juice' each moderator gets for being a relevant moderator in our community in the bragging rights algorithm
+- submoddit concept
+- work in seo-friendly landing pages with submoddits etc -- will take some time to develop this

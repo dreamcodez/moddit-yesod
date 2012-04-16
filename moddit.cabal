@@ -74,6 +74,7 @@ executable         moddit
                  , text
                  , template-haskell
                  , hamlet
+                 , time
                  , wai
                  , wai-extra
                  , transformers

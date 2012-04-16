@@ -13,11 +13,13 @@ import Foundation
 
 import AppState
 
-addNewsItemForm =
+addNewsItemForm now user =
   renderDivs $
     NewsItem
       <$> areq textField "Title" Nothing
       <*> areq textField "URL" Nothing
+      <*> pure now
+      <*> pure user
 
 {-
 --personForm :: Html -> MForm Synopsis Synopsis (FormResult Person, Widget)
