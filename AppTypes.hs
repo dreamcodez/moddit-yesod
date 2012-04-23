@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, TemplateHaskell #-}
+{-# LANGUAGE DeriveDataTypeable, NamedFieldPuns, TemplateHaskell #-}
 module AppTypes where
 
 import Data.Acid
@@ -18,40 +18,61 @@ import Data.Data
 data Email
   = Email Text
   deriving (Data, Eq, Ord, Show, Typeable)
+
 $(deriveSafeCopy 0 'base ''Email)
 
 -- End Query Types
 
-data User = User
-  { email    :: Email
-  , password :: Maybe Text
-  , verkey   :: Maybe Text
-  , verified :: Bool
-  }
+data User =
+  User
+    { uEmail    :: Email
+    , uPassword :: Maybe Text
+    , uVerkey   :: Maybe Text
+    , uVerified :: Bool
+    }
   deriving (Data, Eq, Ord, Show, Typeable)
 
 $(deriveSafeCopy 0 'base ''User)
 
 instance Indexable User where
    empty = ixSet 
-             [ ixFun (\u -> [email u])
+             [ ixFun $ \User {uEmail} -> [uEmail]
              ]
 
-data NewsItem = NewsItem
-  { title   :: Text
-  , url     :: Text
-  , created :: UTCTime
-  , user    :: User 
-  }
-  deriving (Show, Typeable)
+--
+
+data Comment =
+  Comment
+    { cBody :: Text
+    , cUser :: User
+    , cReplies :: [Comment]
+    }
+  deriving (Data, Eq, Ord, Show, Typeable)
+
+$(deriveSafeCopy 0 'base ''Comment)
+
+--
+
+data NewsItem =
+  NewsItem
+    { niTitle    :: Text
+    , niUrl      :: Text
+    , niCreated  :: UTCTime
+    , niUser     :: User 
+    , niComments :: [Comment]
+    }
+  deriving (Data, Eq, Ord, Show, Typeable)
 
 $(deriveSafeCopy 0 'base ''NewsItem)
 
-data Database = Database
-  { hits  :: Int
-  , news  :: [NewsItem]
-  , users :: IxSet User
-  }
+--
+
+data Database =
+  Database
+    { hits  :: Int
+    , news  :: [NewsItem]
+    , users :: IxSet User
+    }
   deriving (Show, Typeable)
 
 $(deriveSafeCopy 0 'base ''Database)

@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies, DeriveDataTypeable, TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies, DeriveDataTypeable, NamedFieldPuns, TemplateHaskell #-}
 module AppState
   ( openFrom
   , NewsItem(..)
@@ -22,6 +22,12 @@ import Data.Text (Text)
 import Data.IxSet
 
 import AppTypes
+
+defaultFixtures =
+  Database
+    0
+    []
+    empty
 
 addNews :: NewsItem -> Update Database ()
 addNews n =
@@ -49,5 +55,5 @@ $(makeAcidic ''Database ['addNews, 'readNews, 'incrementHits, 'readHits, 'lookup
 
 openFrom :: String -> IO (AcidState Database)
 openFrom path =
-  openLocalStateFrom path (Database 0 [] empty)
+  openLocalStateFrom path defaultFixtures 
 

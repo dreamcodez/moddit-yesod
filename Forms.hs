@@ -5,21 +5,25 @@ module Forms where
 import Control.Applicative ((<$>), (<*>), pure)
 import Prelude
 import Yesod
-import Yesod.Form
-import Foundation
+import Yesod.Form ()
+import Foundation (App)
 --import Yesod.Form.Jquery
 --import Data.Text
 --import Data.String
 
-import AppState
+import AppTypes
+import Data.Time.Clock (UTCTime)
 
-addNewsItemForm now user =
-  renderDivs $
-    NewsItem
-      <$> areq textField "Title" Nothing
-      <*> areq textField "URL" Nothing
-      <*> pure now
-      <*> pure user
+addNewsItemForm a1 a2 =
+  renderDivs (customform a1 a2)
+  where customform :: UTCTime -> User -> AForm App App NewsItem
+        customform now user =
+	  NewsItem
+	    <$> areq textField "Title" Nothing
+	    <*> areq textField "URL" Nothing
+	    <*> pure now
+	    <*> pure user
+	    <*> pure []
 
 {-
 --personForm :: Html -> MForm Synopsis Synopsis (FormResult Person, Widget)

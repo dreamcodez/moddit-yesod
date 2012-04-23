@@ -74,7 +74,7 @@ getNewsR = do
   defaultLayout [whamlet|
     $forall n <- news
       <p>
-        <a href=#{url n}>#{title n} by #{show $ email $ user n} at #{show $ created n}
+        <a href=#{niUrl n}>#{niTitle n} by #{show $ uEmail $ niUser n} at #{show $ niCreated n}
 
     <p>main page hits: #{hits}
   |]
