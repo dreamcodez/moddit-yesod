@@ -14,6 +14,8 @@ module Settings
 
 import Prelude
 import Text.Shakespeare.Text (st)
+import Text.Cassius
+import Text.Coffee
 import Language.Haskell.TH.Syntax
 import Yesod.Default.Config
 import qualified Yesod.Default.Util
@@ -46,9 +48,11 @@ staticRoot conf = "/static"
 
 widgetFile :: String -> Q Exp
 #if DEVELOPMENT
-widgetFile = Yesod.Default.Util.widgetFileReload
+widgetFile = Yesod.Default.Util.widgetFileJsCss ("coffee", coffeeFileReload)
+                                                ("cassius", cassiusFileReload)
 #else
-widgetFile = Yesod.Default.Util.widgetFileNoReload
+widgetFile = Yesod.Default.Util.widgetFileJsCss ("coffee", coffeeFile)
+                                                ("cassius", cassiusFile)
 #endif
 
 data Extra = Extra

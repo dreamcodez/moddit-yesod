@@ -71,6 +71,8 @@ executable         moddit
                  , yesod-default
                  , yesod-form
                  , yesod-platform == 1.0.0
+                 , shakespeare-css
+                 , shakespeare-js
                  , shakespeare-text
                  , clientsession
                  , bytestring
