@@ -11,6 +11,7 @@ module Foundation
     , liftIO
     ) where
 
+import Data.Maybe (isJust)
 import Prelude
 import Yesod.Core hiding (Route)
 import Yesod.Default.Config
@@ -24,13 +25,19 @@ import Control.Monad.IO.Class (liftIO)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import Control.Applicative ((<$>))
-import Data.Acid (AcidState)
 import AppState
 import Yesod.Form
 import Yesod.Auth
 import Yesod.Auth.Dummy
 import Yesod.Auth.Email
+import Network.Mail.Mime
+import qualified Data.Text.Lazy.Encoding
+import Text.Blaze.Renderer.Utf8 (renderHtml)
+import Text.Hamlet (shamlet)
+import Text.Shakespeare.Text (stext)
 import Data.Text
+import AppState
+import AppTypes
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -117,15 +124,119 @@ instance RenderMessage t FormMessage where
     renderMessage _ _ = defaultFormMessage
 
 instance YesodAuth App where
-    type AuthId App = Text
+    type AuthId App = UserId
 
     loginDest _ = RootR
     logoutDest _ = RootR
-    --authPlugins _ = [authEmail]
-    authPlugins _ = [authDummy]
+    authPlugins _ = [authEmail]
+    --authPlugins _ = [authDummy]
 
-    -- primary key is == to email address
-    getAuthId = return . Just . credsIdent
+    -- in the future, credsIdent might be something other than an email, i.e. facebook credsIdent
+    getAuthId Creds{credsIdent} =
+      do db <- getDatabase <$> getYesod
+         mu <- query' db (LookupUserByEmail $ Email credsIdent)
+         return $
+           case mu of
+             Nothing -> Nothing
+             Just u  -> Just (uID u)
 
     authHttpManager = error "n/a"
+
+-- Here's all of the email-specific code
+instance YesodAuthEmail App where
+    type AuthEmailId App = UserId
+
+    addUnverified email verkey =
+      do db <- getDatabase <$> getYesod
+         let eml = Email email
+         uid <- update' db $ AddUser (User (UserId (-1)) eml Nothing (Just verkey) False)
+         return uid
+
+    sendVerifyEmail email _ verurl =
+        liftIO $ renderSendMail (emptyMail $ Address Nothing "noreply")
+            { mailTo = [Address Nothing email]
+            , mailHeaders =
+                [ ("Subject", "Verify your email address")
+                ]
+            , mailParts = [[textPart, htmlPart]]
+            }
+      where
+        textPart = Part
+            { partType = "text/plain; charset=utf-8"
+            , partEncoding = None
+            , partFilename = Nothing
+            , partContent = Data.Text.Lazy.Encoding.encodeUtf8 [stext|
+Please confirm your email address by clicking on the link below.
+
+\#{verurl}
+
+Thank you
+|]
+            , partHeaders = []
+            }
+        htmlPart = Part
+            { partType = "text/html; charset=utf-8"
+            , partEncoding = None
+            , partFilename = Nothing
+            , partContent = renderHtml [shamlet|
+<p>Please confirm your email address by clicking on the link below.
+<p>
+    <a href=#{verurl}>#{verurl}
+<p>Thank you
+|]
+            , partHeaders = []
+            }
+    getVerifyKey uid =
+      do db <- getDatabase <$> getYesod
+         mu <- query' db (LookupUser uid)
+         case mu of
+           Nothing -> return Nothing
+           Just u  -> return $ uVerkey u
+
+    setVerifyKey uid key =
+      do db <- getDatabase <$> getYesod
+         update' db (UpdateUserVerkey uid $ Just key)
+         return ()
+
+    verifyAccount uid =
+      do db <- getDatabase <$> getYesod
+         mu <- query' db (LookupUser uid)
+         case mu of
+           Nothing ->
+             return Nothing
+           Just u ->
+             do update' db (UpdateUser u)
+                return $ Just (uID u)
+
+    getPassword uid =
+      do db <- getDatabase <$> getYesod
+         mu <- query' db (LookupUser uid)
+         case mu of
+           Nothing -> return Nothing
+           Just u  -> return $ uPassword u
+
+    setPassword uid pass =
+      do db <- getDatabase <$> getYesod
+         update' db (UpdateUserPassword uid $ Just pass)
+         return ()
+
+    getEmailCreds email_txt =
+      do db <- getDatabase <$> getYesod
+         mu <- query' db (LookupUserByEmail (Email email_txt))
+         case mu of
+           Nothing -> return Nothing
+           Just u  -> (return . Just)
+             EmailCreds
+               { emailCredsId = (uID) u
+               , emailCredsAuthId = (Just . uID) u
+               , emailCredsStatus = isJust (uPassword u)
+               , emailCredsVerkey = uVerkey u
+               }
+
+    getEmail uid =
+      do db <- getDatabase <$> getYesod
+         mu <- query' db (LookupUser uid)
+         case mu of
+           Nothing -> return Nothing
+           Just u  -> (return . Just . unEmail . uEmail) u
 

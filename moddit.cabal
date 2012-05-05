@@ -71,6 +71,8 @@ executable         moddit
                  , yesod-default
                  , yesod-form
                  , yesod-platform == 1.0.0
+                 , mime-mail
+                 , safe
                  , shakespeare-css
                  , shakespeare-js
                  , shakespeare-text
@@ -85,7 +87,7 @@ executable         moddit
                  , transformers
                  , monad-control
                  , yaml
-                 , acid-state
+                 , acid-state >= 0.6.3
                  , safecopy
                  , mtl
                  , blaze-html

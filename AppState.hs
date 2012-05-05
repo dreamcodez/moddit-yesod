@@ -7,12 +7,19 @@ module AppState
   , IncrementHits(..)
   , ReadHits(..)
   , LookupUser(..)
+  , LookupUserByEmail(..)
+  , UpdateUser(..)
+  , AddUser(..)
+  , UpdateUserVerkey(..)
+  , UpdateUserPassword(..)
   , Database
   , module Data.Acid
+  , module Data.Acid.Advanced
   )
 where
 
 import Data.Acid
+import Data.Acid.Advanced
 import Control.Monad.State  ( get, put )
 import Control.Monad.Reader ( ask )
 import Control.Applicative  ( (<$>) )
@@ -28,6 +35,7 @@ defaultFixtures =
     0
     []
     empty
+    (UserId 1)
 
 addNews :: NewsItem -> Update Database ()
 addNews n =
@@ -45,13 +53,69 @@ incrementHits =
 readHits :: Query Database Int
 readHits = hits <$> ask
 
-lookupUser :: Text -> Query Database (Maybe User)
-lookupUser e = do
-  Database{users} <- ask
-  return . getOne $
-    users @= Email e
+lookupUser :: UserId -> Query Database (Maybe User)
+lookupUser uid =
+  do Database{users} <- ask
+     return . getOne $
+       users @= uid
 
-$(makeAcidic ''Database ['addNews, 'readNews, 'incrementHits, 'readHits, 'lookupUser])
+lookupUserByEmail :: Email -> Query Database (Maybe User)
+lookupUserByEmail email =
+  do Database{users} <- ask
+     return . getOne $
+       users @= email
+
+updateUser :: User -> Update Database ()
+updateUser u =
+  do db <- get
+     put db{users = updateIx (uID u) u (users db)}
+
+getNextUserId :: Update Database UserId
+getNextUserId =
+  do db <- get
+     let uid = nextUserId db
+     put db{nextUserId = UserId ((unUserId uid) + 1)}
+     return uid
+
+addUser :: User -> Update Database UserId
+addUser u =
+  do db <- get
+     new_uid <- getNextUserId
+     updateUser u{uID=new_uid}
+     return new_uid
+
+updateUserVerkey :: UserId -> Maybe Text -> Update Database Bool
+updateUserVerkey uid vk =
+  do db <- get
+     let mu = getOne $ (users db) @= uid
+     case mu of
+       Nothing ->
+         return False
+       Just u ->
+         updateUser u{uVerkey=vk} >> return True
+
+updateUserPassword :: UserId -> Maybe Text -> Update Database Bool
+updateUserPassword uid pass =
+  do db <- get
+     let mu = getOne $ (users db) @= uid
+     case mu of
+       Nothing ->
+         return False
+       Just u ->
+         updateUser u{uPassword=pass} >> return True
+
+$(makeAcidic ''Database
+  ['addNews
+  , 'readNews
+  , 'incrementHits
+  , 'readHits
+  , 'lookupUser
+  , 'lookupUserByEmail
+  , 'updateUser
+  , 'addUser
+  , 'updateUserVerkey
+  , 'updateUserPassword
+  ])
 
 openFrom :: String -> IO (AcidState Database)
 openFrom path =

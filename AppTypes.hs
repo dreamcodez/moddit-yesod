@@ -8,24 +8,43 @@ import Control.Monad.Reader ( ask )
 import Control.Applicative  ( (<$>) )
 import Prelude
 import Data.Typeable
-import Data.Text (Text)
+import Data.Text (Text, pack, unpack)
 import Data.Map
 import Data.Time.Clock (UTCTime)
 import Data.IxSet
 import Data.Data
+import Yesod (PathPiece(..))
+import Safe
 
--- Simple Types (for querying with IxSet)
-data Email
-  = Email Text
+--
+
+data UserId =
+  UserId { unUserId :: Int }
+  deriving (Data, Eq, Ord, Show, Typeable)
+
+$(deriveSafeCopy 0 'base ''UserId)
+
+instance PathPiece UserId where
+  toPathPiece = pack . show . unUserId
+  fromPathPiece piece =
+    case readMay (unpack piece) of
+      Nothing -> Nothing
+      Just i  -> Just (UserId i)
+
+--
+
+data Email =
+  Email { unEmail :: Text }
   deriving (Data, Eq, Ord, Show, Typeable)
 
 $(deriveSafeCopy 0 'base ''Email)
 
--- End Query Types
+--
 
 data User =
   User
-    { uEmail    :: Email
+    { uID       :: UserId
+    , uEmail    :: Email
     , uPassword :: Maybe Text
     , uVerkey   :: Maybe Text
     , uVerified :: Bool
@@ -36,7 +55,8 @@ $(deriveSafeCopy 0 'base ''User)
 
 instance Indexable User where
    empty = ixSet 
-             [ ixFun $ \User {uEmail} -> [uEmail]
+             [ ixFun $ \User {uID}    -> [uID]
+             , ixFun $ \User {uEmail} -> [uEmail]
              ]
 
 --
@@ -69,9 +89,10 @@ $(deriveSafeCopy 0 'base ''NewsItem)
 
 data Database =
   Database
-    { hits  :: Int
-    , news  :: [NewsItem]
-    , users :: IxSet User
+    { hits        :: Int
+    , news        :: [NewsItem]
+    , users       :: IxSet User
+    , nextUserId  :: UserId
     }
   deriving (Show, Typeable)
 

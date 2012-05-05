@@ -33,7 +33,7 @@ getRootR = do
     $(widgetFile "homepage")
 -}
 
-fakeuser = User (Email "beppu@nowhere.com") Nothing Nothing False
+fakeuser = User (UserId 99) (Email "beppu@nowhere.com") Nothing Nothing False
 
 -- new implementation (WIP)
 getRootR :: Handler RepHtml
