@@ -149,7 +149,7 @@ instance YesodAuthEmail App where
     addUnverified email verkey =
       do db <- getDatabase <$> getYesod
          let eml = Email email
-         uid <- update' db $ AddUser (User (UserId (-1)) eml Nothing (Just verkey) False)
+         uid <- update' db $ AddUser (User (UserId undefined) eml Nothing (Just verkey) False)
          return uid
 
     sendVerifyEmail email _ verurl =
