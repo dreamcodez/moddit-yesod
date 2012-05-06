@@ -33,6 +33,18 @@ instance PathPiece UserId where
 
 --
 
+data UserAlias =
+  UserAlias { unUserAlias :: Text }
+  deriving (Data, Eq, Ord, Show, Typeable)
+
+$(deriveSafeCopy 0 'base ''UserAlias)
+
+instance PathPiece UserAlias where
+  toPathPiece = unUserAlias
+  fromPathPiece = Just . UserAlias
+
+--
+
 data Email =
   Email { unEmail :: Text }
   deriving (Data, Eq, Ord, Show, Typeable)
@@ -44,6 +56,7 @@ $(deriveSafeCopy 0 'base ''Email)
 data User =
   User
     { uID       :: UserId
+    , uAlias    :: Maybe UserAlias
     , uEmail    :: Email
     , uPassword :: Maybe Text
     , uVerkey   :: Maybe Text
@@ -75,11 +88,12 @@ $(deriveSafeCopy 0 'base ''Comment)
 
 data NewsItem =
   NewsItem
-    { niTitle    :: Text
-    , niUrl      :: Text
-    , niCreated  :: UTCTime
-    , niUser     :: User 
-    , niComments :: [Comment]
+    { niTitle     :: Text
+    , niUrl       :: Text
+    , niCreated   :: UTCTime
+    , niUserId    :: UserId
+    , niUserAlias :: UserAlias
+    , niComments  :: [Comment]
     }
   deriving (Data, Eq, Ord, Show, Typeable)
 

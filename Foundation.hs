@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TemplateHaskell, TypeFamilies #-} 
+    {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TemplateHaskell, TypeFamilies #-} 
 module Foundation
     ( App (..)
     , Route (..)
@@ -134,7 +134,8 @@ instance YesodAuth App where
     -- in the future, credsIdent might be something other than an email, i.e. facebook credsIdent
     getAuthId Creds{credsIdent} =
       do db <- getDatabase <$> getYesod
-         mu <- query' db (LookupUserByEmail $ Email credsIdent)
+         let eml = Email credsIdent
+         mu <- query' db (LookupUserByEmail eml)
          return $
            case mu of
              Nothing -> Nothing
@@ -149,7 +150,8 @@ instance YesodAuthEmail App where
     addUnverified email verkey =
       do db <- getDatabase <$> getYesod
          let eml = Email email
-         uid <- update' db $ AddUser (User (UserId undefined) eml Nothing (Just verkey) False)
+         -- in the future, when we support facebook login etc, alias should be user defined/unique (instead of email)
+         uid <- update' db $ AddUser (User (UserId (-1)) (Just $ UserAlias email) eml Nothing (Just verkey) False)
          return uid
 
     sendVerifyEmail email _ verurl =

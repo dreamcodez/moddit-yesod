@@ -1,11 +1,3 @@
-<p>Your current auth ID: #{show maid}
-$maybe _ <- maid
-  <p>
-    <a href=@{AuthR LogoutR}>Logout
-$nothing
-  <p>
-    <a href=@{AuthR LoginR}>Go to the login page
-<form class="form-horizontal" method=post action=@{NewsR} enctype=#{enctype}>
-  ^{widget}
-  <input type=submit class="btn btn-primary">
+<p id="login">
+  <a href=@{AuthR LoginR}>Go to the login page
 <p>Homepage hits: #{hits}

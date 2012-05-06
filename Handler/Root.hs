@@ -33,8 +33,25 @@ getRootR = do
     $(widgetFile "homepage")
 -}
 
-fakeuser = User (UserId 99) (Email "beppu@nowhere.com") Nothing Nothing False
+-- get user object of current logged in user
+maybeUser =
+  do muid <- maybeAuthId
+     case muid of
+       Nothing  -> return Nothing
+       Just uid ->
+         do db <- getDatabase <$> getYesod
+            query' db (LookupUser uid)
 
+-- get user object of current logged in user, and require that they have an alias
+maybeAliasedUser =
+  do muser <- maybeUser
+     case muser of
+       Nothing   -> return Nothing
+       Just user ->
+         case uAlias user of
+           Nothing -> return Nothing
+           Just _  -> return (Just user)
+         
 -- new implementation (WIP)
 getRootR :: Handler RepHtml
 getRootR = do
@@ -44,22 +61,33 @@ getRootR = do
   maid <- maybeAuthId
   now <- liftIO getCurrentTime
 
-  (widget, enctype) <- generateFormPost (addNewsItemForm now fakeuser)
-  defaultLayout $ do
-    h2id <- lift newIdent
-    $(widgetFile "homepage")
+  defaultLayout $(widgetFile "homepage")
+
+getNewsFormR :: Handler RepHtml
+getNewsFormR =
+  do muser <- maybeAliasedUser
+     case muser of
+       Nothing -> notFound
+       Just User{uID=uid, uAlias=Just ua} ->
+         do now <- liftIO getCurrentTime
+            (widget, enctype) <- generateFormPost (addNewsItemForm now uid ua)
+            defaultLayout $(widgetFile "news-form")
 
 postNewsR :: Handler RepHtml
-postNewsR = do
-  now <- liftIO getCurrentTime
-  ((result, widget), enctype) <- runFormPost (addNewsItemForm now fakeuser)
-  case result of
-    (FormSuccess newsItem) -> do
-      db <- getDatabase <$> getYesod
-      _ <- liftIO $ update db (AddNews newsItem)
-      redirect NewsR
-    _ -> do
-      defaultLayout [whamlet|
+postNewsR =
+  do muser <- maybeAliasedUser
+     case muser of
+       Nothing -> notFound
+       Just User{uID=uid, uAlias=Just ua} ->
+         do now <- liftIO getCurrentTime
+            ((result, widget), enctype) <- runFormPost (addNewsItemForm now uid ua)
+            case result of
+              (FormSuccess newsItem) -> do
+                db <- getDatabase <$> getYesod
+                _ <- liftIO $ update db (AddNews newsItem)
+                redirect NewsR
+              _ -> do
+                defaultLayout [whamlet|
 <p>Invalid input, let's try again.
 <form method=post action=@{RootR} enctype=#{enctype}>
   ^{widget}
@@ -74,7 +102,7 @@ getNewsR = do
   defaultLayout [whamlet|
     $forall n <- news
       <p>
-        <a href=#{niUrl n}>#{niTitle n} by #{show $ uEmail $ niUser n} at #{show $ niCreated n}
+        <a href=#{niUrl n}>#{niTitle n} by #{show $ niUserAlias n} at #{show $ niCreated n}
 
     <p>main page hits: #{hits}
   |]

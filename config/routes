@@ -3,5 +3,6 @@
 /robots.txt   RobotsR   GET
 /             RootR     GET 
 /news         NewsR     GET POST
+/news/form    NewsFormR GET
 /auth         AuthR     Auth      getAuth
 

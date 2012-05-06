@@ -14,16 +14,18 @@ import Foundation (App)
 import AppTypes
 import Data.Time.Clock (UTCTime)
 
-addNewsItemForm a1 a2 =
-  renderDivs (customform a1 a2)
-  where customform :: UTCTime -> User -> AForm App App NewsItem
-        customform now user =
-	  NewsItem
-	    <$> areq textField "Title" Nothing
-	    <*> areq textField "URL" Nothing
-	    <*> pure now
-	    <*> pure user
-	    <*> pure []
+addNewsItemForm a1 a2 a3 =
+  renderDivs (customform a1 a2 a3)
+  where customform :: UTCTime -> UserId -> UserAlias -> AForm App App NewsItem
+        customform now uid ualias =
+          NewsItem
+            <$> areq textField "Title" Nothing
+            <*> areq textField "URL" Nothing
+            <*> pure now
+            <*> pure uid
+            <*> pure ualias
+            <*> pure []
+
 
 {-
 --personForm :: Html -> MForm Synopsis Synopsis (FormResult Person, Widget)
