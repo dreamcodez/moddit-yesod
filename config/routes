@@ -4,5 +4,6 @@
 /             RootR     GET 
 /news         NewsR     GET POST
 /news/form    NewsFormR GET
+/users        UsersR    GET
 /auth         AuthR     Auth      getAuth
 

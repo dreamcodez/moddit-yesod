@@ -9,6 +9,7 @@ import Forms
 import Data.Time.Clock (getCurrentTime)
 --import Control.Monad
 import AppTypes
+import Text.JSON
 
 
 {-
@@ -105,5 +106,13 @@ getNewsR = do
         <a href=#{niUrl n}>#{niTitle n} by #{show $ niUserAlias n} at #{show $ niCreated n}
 
     <p>main page hits: #{hits}
+  |]
+
+getUsersR :: Handler RepHtml
+getUsersR = do
+  db <- getDatabase <$> getYesod
+  users <- query' db (ReadUsers 100)
+  defaultLayout [whamlet|
+    <p>#{show users}
   |]
 

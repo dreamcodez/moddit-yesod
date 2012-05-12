@@ -40,7 +40,6 @@ library
 
     extensions: TemplateHaskell
                 QuasiQuotes
-                NoImplicitPrelude
                 CPP
                 MultiParamTypeClasses
                 TypeFamilies
@@ -61,40 +60,41 @@ executable         moddit
 
     main-is:       main.hs
 
-    build-depends: base
+    build-depends: acid-state == 0.6.3
+                 , base
+                 , blaze-html
+                 , blaze-markup
+                 , bytestring
+                 , clientsession
                  , containers
+                 , hamlet
                  , ixset
-                 , yesod
-                 , yesod-auth
-                 , yesod-core
-                 , yesod-static
-                 , yesod-default
-                 , yesod-form
-                 , yesod-platform == 1.0.0
+                 , json
                  , mime-mail
+                 , monad-control
+                 , mtl
                  , safe
+                 , safecopy
                  , shakespeare-css
                  , shakespeare-js
                  , shakespeare-text
-                 , clientsession
-                 , bytestring
                  , text
                  , template-haskell
-                 , hamlet
                  , time
+                 , transformers
                  , wai
                  , wai-extra
-                 , transformers
-                 , monad-control
                  , yaml
-                 , acid-state >= 0.6.3
-                 , safecopy
-                 , mtl
-                 , blaze-html
+                 , yesod
+                 , yesod-auth
+                 , yesod-core
+                 , yesod-default
+                 , yesod-form
+                 , yesod-platform == 1.0.3.4
+                 , yesod-static
 
     extensions: TemplateHaskell
                 QuasiQuotes
-                NoImplicitPrelude
                 CPP
                 MultiParamTypeClasses
                 TypeFamilies

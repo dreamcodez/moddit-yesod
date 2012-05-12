@@ -6,6 +6,7 @@ module AppState
   , ReadNews(..)
   , IncrementHits(..)
   , ReadHits(..)
+  , ReadUsers(..)
   , LookupUser(..)
   , LookupUserByEmail(..)
   , UpdateUser(..)
@@ -52,6 +53,9 @@ incrementHits =
 
 readHits :: Query Database Int
 readHits = hits <$> ask
+
+readUsers :: Int -> Query Database [User]
+readUsers limit = take limit <$> toAscList (undefined :: Proxy UserId) <$> users <$> ask
 
 lookupUser :: UserId -> Query Database (Maybe User)
 lookupUser uid =
@@ -109,6 +113,7 @@ $(makeAcidic ''Database
   , 'readNews
   , 'incrementHits
   , 'readHits
+  , 'readUsers
   , 'lookupUser
   , 'lookupUserByEmail
   , 'updateUser
