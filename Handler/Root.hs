@@ -1,5 +1,6 @@
 module Handler.Root where
 
+import Safe (fromJustDef)
 import Yesod hiding (update)
 import Yesod.Auth
 import Import
@@ -113,6 +114,7 @@ getUsersR = do
   db <- getDatabase <$> getYesod
   users <- query' db (ReadUsers 100)
   defaultLayout [whamlet|
-    <p>#{show users}
+    $forall u <- users
+      <p>#{show $ fromJustDef (UserAlias "unknown user") $ uAlias u}
   |]
 
